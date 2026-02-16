@@ -1,0 +1,33 @@
+name: Sync to Helios
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitHub repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push changes to Helios
+        env:
+          HELIOS_SSH_PRIVATE_KEY: ${{ secrets.HELIOS_SSH_PRIVATE_KEY }}
+          HELIOS_USER: ${{ secrets.HELIOS_USER }}
+          HELIOS_PORT: ${{ secrets.HELIOS_PORT }}
+          HELIOS_HOST: ${{ secrets.HELIOS_HOST }}
+          HELIOS_REMOTE_DIR: ${{ secrets.HELIOS_REMOTE_DIR }}
+        run: |
+          echo "$HELIOS_SSH_PRIVATE_KEY" > key.pem
+          chmod 600 key.pem
+
+          rsync -avz --delete --exclude '.git' --exclude '.github' --exclude '.gitignore' --exclude 'key.pem' \
+            --exclude 'README.md' --exclude 'LICENSE.md' -e "ssh -i key.pem -o StrictHostKeyChecking=no -p $HELIOS_PORT" \
+            ./ $HELIOS_USER@$HELIOS_HOST:$HELIOS_REMOTE_DIR
+
+          rm -f key.pem
