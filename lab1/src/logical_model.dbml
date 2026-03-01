@@ -1,0 +1,86 @@
+Enum vehicle_type {
+  spacecraft
+  shuttle
+  space_station
+  probe
+  interplanetary_ship
+}
+
+Enum observer_role {
+  commander
+  pilot
+  engineer
+  scientist
+  passenger
+}
+
+Enum celestial_body_type {
+  planet
+  satellite
+  asteroid
+  comet
+  star
+}
+
+Table vehicle {
+  id integer [pk, increment]
+  name varchar(100) [not null]
+  registry_code varchar(50) [not null, unique]
+  type vehicle_type [not null]
+  crew_capacity integer [not null, check: `crew_capacity >= 0`]
+}
+
+Table observer {
+  id integer [pk, increment]
+  name varchar(100) [not null]
+  role observer_role [not null]
+  vehicle_id integer [not null, ref: > vehicle.id]
+
+  indexes {
+    (vehicle_id)
+  }
+}
+
+Table field_of_view {
+  id integer [pk, increment]
+  description text
+  start_time timestamptz [not null]
+  end_time timestamptz [not null, check: `end_time > start_time`]
+  viewing_angle_deg numeric(6,3) [not null, check: `viewing_angle_deg > 0 AND viewing_angle_deg <= 180`]
+  distance_km numeric(15,3) [not null, check: `distance_km > 0`]
+}
+
+Table observer_field_of_view {
+  observer_id integer [pk, not null, ref: > observer.id]
+  fov_id integer [pk, not null, ref: > field_of_view.id]
+
+  indexes {
+    (fov_id)
+  }
+}
+
+Table celestial_body {
+  id integer [pk, increment]
+  name varchar(100) [not null]
+  type celestial_body_type [not null]
+  has_rings boolean [not null, default: false]
+  mass_kg numeric(40,3) [not null, check: `mass_kg > 0`]
+  equatorial_radius_km numeric(15,6) [not null, check: `equatorial_radius_km > 0`]
+  polar_radius_km numeric(15,6) [not null, check: `polar_radius_km > 0`]
+  volume_km3 numeric(30,3) [not null, check: `volume_km3 > 0`]
+  surface_area_km2 numeric(20,3) [not null, check: `surface_area_km2 > 0`]
+  parent_body_id integer [ref: > celestial_body.id]
+
+  indexes {
+    (parent_body_id)
+  }
+}
+
+Table field_of_view_celestial_body {
+  fov_id integer [pk, not null, ref: > field_of_view.id]
+  body_id integer [pk, not null, ref: > celestial_body.id]
+
+  indexes {
+    (body_id)
+  }
+}
