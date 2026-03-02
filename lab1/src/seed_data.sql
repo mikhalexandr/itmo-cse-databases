@@ -56,12 +56,12 @@ new_jupiter AS (
     RETURNING id
 ),
 
--- 6. Создаём поле зрения
-new_fov AS (
+-- 6a. Поле зрения: Юпитер
+new_fov_jupiter AS (
     INSERT INTO field_of_view
     (description, start_time, end_time, viewing_angle_deg, distance_km)
     VALUES
-    ('Флойд наблюдает надвигающийся Юпитер, заслоняющий полнеба. Даже 50 Земель не закрыли бы видимую часть.',
+    ('Флойд наблюдает Юпитер, заслоняющий полнеба.',
      '2026-03-01 20:00:00+03',
      '2026-03-01 21:30:00+03',
      180.000,
@@ -69,18 +69,42 @@ new_fov AS (
     RETURNING id
 ),
 
--- 7. Связь наблюдатель <-> поле зрения
-link_observer_fov AS (
+-- 6b. Поле зрения: Земля
+new_fov_earth AS (
+    INSERT INTO field_of_view
+    (description, start_time, end_time, viewing_angle_deg, distance_km)
+    VALUES
+    ('Флойд наблюдает Землю на фоне звёзд.',
+     '2026-03-01 21:45:00+03',
+     '2026-03-01 22:10:00+03',
+     20.000,
+     1000000.000)
+    RETURNING id
+),
+
+-- 7a. Связь наблюдатель <-> FOV (Юпитер)
+link_observer_fov_jupiter AS (
     INSERT INTO observer_field_of_view (observer_id, fov_id)
     SELECT o.id, f.id
-    FROM new_observer o, new_fov f
+    FROM new_observer o, new_fov_jupiter f
+    RETURNING 1
+),
+
+-- 7b. Связь наблюдатель <-> FOV (Земля)
+link_observer_fov_earth AS (
+    INSERT INTO observer_field_of_view (observer_id, fov_id)
+    SELECT o.id, f.id
+    FROM new_observer o, new_fov_earth f
     RETURNING 1
 )
 
--- 8. Связь поле зрения <-> небесные тела
+-- 8. Связи FOV <-> небесные тела (каждое FOV — со своим телом)
 INSERT INTO field_of_view_celestial_body (fov_id, body_id)
-SELECT f.id, j.id FROM new_fov f, new_jupiter j
+SELECT f.id, j.id
+FROM new_fov_jupiter f, new_jupiter j
 UNION ALL
-SELECT f.id, e.id FROM new_fov f, new_earth e;
+SELECT f.id, e.id
+FROM new_fov_earth f, new_earth e;
+
 
 COMMIT;

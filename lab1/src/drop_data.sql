@@ -1,0 +1,14 @@
+BEGIN;
+
+DROP TABLE IF EXISTS field_of_view_celestial_body CASCADE;
+DROP TABLE IF EXISTS observer_field_of_view CASCADE;
+DROP TABLE IF EXISTS celestial_body CASCADE;
+DROP TABLE IF EXISTS field_of_view CASCADE;
+DROP TABLE IF EXISTS observer CASCADE;
+DROP TABLE IF EXISTS vehicle CASCADE;
+
+DROP TYPE IF EXISTS celestial_body_type CASCADE;
+DROP TYPE IF EXISTS observer_role CASCADE;
+DROP TYPE IF EXISTS vehicle_type CASCADE;
+
+COMMIT;
