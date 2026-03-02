@@ -28,7 +28,7 @@ new_sun AS (
     RETURNING id
 ),
 
--- 4. Создаём Землю (родитель — Солнце)
+-- 4. Создаём Землю (родитель - Солнце)
 new_earth AS (
     INSERT INTO celestial_body
     (name, type, has_rings, mass_kg,
@@ -42,7 +42,7 @@ new_earth AS (
     RETURNING id
 ),
 
--- 5. Создаём Юпитер (родитель — Солнце)
+-- 5. Создаём Юпитер (родитель - Солнце)
 new_jupiter AS (
     INSERT INTO celestial_body
     (name, type, has_rings, mass_kg,
@@ -98,7 +98,7 @@ link_observer_fov_earth AS (
     RETURNING 1
 )
 
--- 8. Связи FOV <-> небесные тела (каждое FOV — со своим телом)
+-- 8. Связи FOV <-> небесные тела (каждое FOV - со своим телом)
 INSERT INTO field_of_view_celestial_body (fov_id, body_id)
 SELECT f.id, j.id
 FROM new_fov_jupiter f, new_jupiter j
